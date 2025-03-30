@@ -1,5 +1,9 @@
+{% load static %}
 <nav class="navbar navbar-expand-lg custom-navbar">
-    <a class="navbar-brand" href="{%  url 'home' %}">HappyDriver</a>
+    <img src="{% static 'img/logo.png' %}" width="3%">
+    <a class="navbar-brand" href="{%  url 'home' %}">
+        HappyStudy
+    </a>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -9,32 +13,8 @@
         <ul class="navbar-nav me-auto mb-2 mb-lg-0">
 
             {% if not request.user.is_staff %}
-            <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-               data-bs-toggle="dropdown" aria-expanded="false">
-                Теорія ПДР
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                <li><a class="dropdown-item" href="{% url 'road_signs' %}">Дорожні знаки</a></li>
-                <li><a class="dropdown-item" href="{% url 'road_markings' %}">Дорожня розмітка</a></li>
-                <li><a class="dropdown-item" href="{% url 'theory_traffic_light' %}">Світлофор</a></li>
-                <li><a class="dropdown-item" href="{% url 'theory_regulator' %}">Регулювальник</a></li>
-                <li><a class="dropdown-item" href="{% url 'theory_fines' %}">Штрафи</a></li>
-            </ul>
-            </li>
 
-            <li class="nav-item dropdown">
-                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                   data-bs-toggle="dropdown" aria-expanded="false">
-                    Тести ПДР
-                </a>
-                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="{% url 'get_topic_quizzes' %}">Тести по темам</a></li>
-                    <li><a class="dropdown-item" href="{% url 'choose_quiz_category' %}">Тести по категоріях прав</a></li>
-                    <li><a class="dropdown-item" href="{% url 'get_paper_quizzes' %}">Тести по білетах</a></li>
-                </ul>
-                </li>
-
+            <li class="nav-item"><a class="nav-link" href="">Тести</a></li>
             <li class="nav-item"><a class="nav-link" href="/#contacts">Контакти</a></li>
             {% endif %}
             {% if request.user.is_authenticated %}
@@ -48,8 +28,8 @@
                    Тестування
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="{% url 'create_quiz' %}">Створити нове</a></li>
-                    <li><a class="dropdown-item" href="{% url 'quiz_list' %}">Список тестувань</a></li>
+                    <li><a class="dropdown-item" href="">Створити нове</a></li>
+                    <li><a class="dropdown-item" href="">Список тестувань</a></li>
                 </ul>
                 </li>
                 
@@ -59,8 +39,8 @@
                         Питання
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{% url 'create_question' %}">Додати нове</a></li>
-                        <li><a class="dropdown-item" href="{% url 'question_list' %}">Список питань</a></li>
+                        <li><a class="dropdown-item" href="">Додати нове</a></li>
+                        <li><a class="dropdown-item" href="">Список питань</a></li>
                     </ul>
                     </li>
 
@@ -72,7 +52,7 @@
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link profile"
-                       href="{% url 'get_history_quizzes_results' pk=request.user.id filter='all' %}">Історія проходжень
+                       href="">Історія проходжень
                     </a>
                 </li>
                 {% endif %}
@@ -99,7 +79,7 @@
                 <a href="{% url 'signout' %}" class="btn btn-outline-light">Вихід</a>
             </li>
         </ul>
-        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
@@ -111,7 +91,7 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                        <a href="{% url 'delete_user' request.user.pk %}" class="btn btn-danger">Видалити</a>
+                        <a href="{% url 'delete_user' %}" class="btn btn-danger">Видалити</a>
                     </div>
                 </div>
             </div>

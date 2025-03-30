@@ -1,74 +1,132 @@
 {% extends 'base.html' %}
-
+{% load static %}
 
 {% block content %}
 
 <div class="container">
   {% if not request.user.is_staff %}
-          <h2 class="text-center mb-4 mt-5">Навчайся - Від теорії до впевненого водіння!</h2>
+          <h2 class="text-center mb-4 mt-5">Навчайся - проходь тестування у нас!</h2>
           <div class="row justify-content-center">
-          <div class="col-md-8 text-center">
-              <p class="text-center fs-5">ПДР, тести, навчальні матеріали – все на одній платформі.</p>
+          <div class="col-md-12 text-center">
+              <p class="text-center fs-5"> Онлайн-платформа <strong>«HappyStudy»</strong> створена для того, щоб кожен школяр, незалежно від 
+                місця проживання, зміг отримувати якісні знання в цікавому форматі.</p>
             </div>
           </div>
 
+            <div class="row">
+                
+                <div class="col-md-4 mb-4" >
+                    <div class="home-card shadow-sm d-flex flex-column">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h5 class="card-title">Англійська мова</h5>
+                            <p class="card-text">Для учнів 5-9 класів</p>
+                            <img src="{% static 'img/english-home.svg' %}" alt="Англійська мова іконка" width="60%">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="home-card shadow-sm d-flex flex-column">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h5 class="card-title">Математика</h5>
+                            <p class="card-text">Для учнів 5-9 класів</p>
+                            <img src="{% static 'img/math-home.svg' %}" alt="Математика іконка" width="60%">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-4">
+                    <div class="home-card shadow-sm d-flex flex-column">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h5 class="card-title">Середня школа</h5>
+                            <p class="card-text">Цікаві тести з усіх предметів</p>
+                            <img src="{% static 'img/ser-home.svg' %}" alt="Середня школа іконка" width="60%">
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card p-4 mb-5">
+                    <h3 class="text-center">Що ми пропонуємо?</h3>
+                    <ul>
+                        <li class="text-center fs-5"><strong>Навчання в будь-який час:</strong> Ви можете вчитися з будь-якого пристрою та у зручний для вас час.</li>
+                        <li class="text-center fs-5"><strong>Прогрес на кожному кроці:</strong> Стежте за своїми результатами, покращуйте свої знання та відслідковуйте свій прогрес.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
           <div class="col-md-12 text-center d-flex justify-content-center align-items-center">
-            <img src="https://i.obozrevatel.com/news/2024/3/29/43d5377b-c46f-41f0-8271-fd962f5c4aca.png?size=1944x924"
-            alt="" class="d-block mx-auto img-fluid" style="max-width: 80%;">
-            <a href="{% url 'get_quizzes' %}" class="btn choose-btn btn-lg position-absolute top-70 start-50 translate-middle">
+            <img src="{% static 'img/main-home.jpg' %}"
+            alt="" class="d-block mx-auto img-fluid" width="100%">
+            <a href="" class="btn choose-btn btn-lg position-absolute top-70 start-50 translate-middle">
               Обрати тестування
             </a>
           </div>
 
-        <div class="row justify-content-center">
-            <div class="col-md-8 text-center">
-                <h1 class="display-4 mb-4">Про нас</h1>
-                <p class="lead">Ми — навчальна платформа, яка допомагає вам вивчити ПДР. Наші тести, навчальні матеріали та інтерактивні курси зроблять процес навчання зручним та ефективним.</p>
+        <div class="row justify-content-center mb-5">
+            <div class="col-md-12 text-center">
+                <h1 class="display-4 mt-5 mb-4">Про нас</h1>
+                <p class="text-center fs-5">
+                    Ми створили цей проект, щоб у кожного була можливість отримати якісну освіту, брати участь в масових 
+                    інтелектуальних змаганнях, розвивати свої здібності та здобувати нагороди за свої знання.
+                </p>
             </div>
         </div>
 
-        <div class="row justify-content-center">
-            <div class="col-md-8">
-                <div class="card p-4 mb-5">
-                    <h3 class="text-center">Що ми пропонуємо?</h3>
-                    <ul>
-                        <li><strong>Навчання в будь-який час:</strong> Ви можете вчитися з будь-якого пристрою та у зручний для вас час.</li>
-                        <li><strong>Прогрес на кожному кроці:</strong> Стежте за своїми результатами, покращуйте свої знання та відслідковуйте свій прогрес.</li>
-                        <li><strong>Підтримка 24/7:</strong> Ми завжди готові допомогти вам у навчанні та відповісти на ваші питання.</li>
-                    </ul>
-                </div>
-
-                <div class="card p-4 mb-5">
-                    <h3 class="text-center">Наша місія</h3>
-                    <p>Ми прагнемо зробити процес навчання доступним для кожного. Наша місія — допомогти майбутнім водіям отримати необхідні знання для безпеки на дорозі та успішно скласти іспит на права.</p>
-                </div>
-
-            </div>
-        </div>
      
     {% else %}    
-    <h2 class="text-center mb-4 mt-5">Адмін-панель: Управління платформою</h2>
+    <h2 class="text-center mb-4 mt-5">Онлайн-платформа <strong>«HappyStudy»</strong> допомагає навчати</h2>
       
     <div class="row justify-content-center">
-        <div class="col-md-8 text-center">
-            <p class="text-center fs-5">Вітаємо, {{ request.user.first_name }}! Тут ви можете керувати тестами, користувачами, переглядати статистику та багато іншого.</p>
+        <div class="col-md-12 text-center">
+            <p class="text-center fs-5">Створюйте необмежені можливості для обміну досвідом між освітянами.
+            Тут ви можете керувати тестами, користувачами, переглядати статистику та багато іншого.</p>
         </div>
     </div>
     
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card p-4 mb-4">
-                <h3 class="text-center">Останні оновлення</h3>
-                <ul>
-                    <li>Додано новий тест: <strong>"{{ latest_quiz }}"</strong>.</li>
-                </ul>
+
+    <div class="row">
+                
+        <div class="col-md-4 mb-4" >
+            <div class="home-card shadow-sm d-flex flex-column">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h5 class="card-title">Створити тест</h5>
+                    <p class="card-text">Створюйте нові тестування</p>
+                    <img src="{% static 'img/create-test.svg' %}" alt="Англійська мова іконка" width="40%">
+                </div>
             </div>
-            
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="home-card shadow-sm d-flex flex-column">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h5 class="card-title">Список тестувань</h5>
+                    <p class="card-text">Перегляньте існуючі тести</p>
+                    <img src="{% static 'img/tests.svg' %}" alt="Математика іконка" width="40%">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-4">
+            <div class="home-card shadow-sm d-flex flex-column">
+                <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                    <h5 class="card-title">Учні</h5>
+                    <p class="card-text">Відстежуйте прогрес у навчанні учнів</p>
+                    <img src="{% static 'img/users-home.svg' %}" alt="Середня школа іконка" width="40%">
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row justify-content-center">
+        <div class="col-md-12">
             <div class="card p-4 mb-4">
-                <h3 class="text-center">Загальна статистика</h3>
+                <h2 class="text-center">Загальна статистика</h2>
                 <ul>
-                    <li>Кількість користувачів: <strong>{{ users_count }}</strong></li>
-                    <li>Кількість тестів: <strong>{{ questions_count }}</strong></li>
+                    <li class="fs-5">Додано новий тест: <strong>"--"</strong>.</li>
+                    <li class="fs-5">Кількість тестів: <strong>{{ quizzes_count }}</strong></li>
+                    <li class="fs-5">Кількість користувачів: <strong>{{ users_count }}</strong></li>
                 </ul>
             </div>
         </div>

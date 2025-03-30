@@ -22,16 +22,9 @@ from django.views.generic.base import TemplateView
 
 
 urlpatterns = [
-    path('politika/', TemplateView.as_view(template_name='quizzes/politika.html'), name='politika'),
-    path('theory/', TemplateView.as_view(template_name='quizzes/theory.html'), name='theory'),
-    path('theory/road-markings/', TemplateView.as_view(template_name='quizzes/road_markings.html'), name='road_markings'),
-    path('theory/road-signs/', TemplateView.as_view(template_name='quizzes/road_signs.html'), name='road_signs'),
-    path('theory/fines/', TemplateView.as_view(template_name='quizzes/theory_fines.html'), name='theory_fines'),
-    path('theory/traffic-light/', TemplateView.as_view(template_name='quizzes/theory_traffic_light.html'), name='theory_traffic_light'),
-    path('theory/regulator/', TemplateView.as_view(template_name='quizzes/theory_regulator.html'), name='theory_regulator'),
     path('admin/', admin.site.urls),
     path('accounts/', include('accounts.urls')),
-    path('', include('quizzes.urls')),
+    path('', include('happystudy.urls')),
 ]
 
 if s.DEBUG:
