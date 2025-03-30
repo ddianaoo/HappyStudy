@@ -79,23 +79,7 @@
                 <a href="{% url 'signout' %}" class="btn btn-outline-light">Вихід</a>
             </li>
         </ul>
-        <div class="modal" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteModalLabel">Підтвердження видалення</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
-                    </div>
-                    <div class="modal-body">
-                        Ви впевнені, що хочете видалити профіль? Ця дія не може бути скасована.
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
-                        <a href="{% url 'delete_user' %}" class="btn btn-danger">Видалити</a>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         {% else %}
         <span>
             <a href="{% url 'signin' %}" class="btn btn-light">Вхід</a>
