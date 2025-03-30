@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<div class="container">
+  {% if not request.user.is_staff %}
+          <h2 class="text-center mb-4 mt-5">Навчайся - Від теорії до впевненого водіння!</h2>
+          <div class="row justify-content-center">
+          <div class="col-md-8 text-center">
+              <p class="text-center fs-5">ПДР, тести, навчальні матеріали – все на одній платформі.</p>
+            </div>
+          </div>
+
+          <div class="col-md-12 text-center d-flex justify-content-center align-items-center">
+            <img src="https://i.obozrevatel.com/news/2024/3/29/43d5377b-c46f-41f0-8271-fd962f5c4aca.png?size=1944x924"
+            alt="" class="d-block mx-auto img-fluid" style="max-width: 80%;">
+            <a href="{% url 'get_quizzes' %}" class="btn choose-btn btn-lg position-absolute top-70 start-50 translate-middle">
+              Обрати тестування
+            </a>
+          </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <h1 class="display-4 mb-4">Про нас</h1>
+                <p class="lead">Ми — навчальна платформа, яка допомагає вам вивчити ПДР. Наші тести, навчальні матеріали та інтерактивні курси зроблять процес навчання зручним та ефективним.</p>
+            </div>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card p-4 mb-5">
+                    <h3 class="text-center">Що ми пропонуємо?</h3>
+                    <ul>
+                        <li><strong>Навчання в будь-який час:</strong> Ви можете вчитися з будь-якого пристрою та у зручний для вас час.</li>
+                        <li><strong>Прогрес на кожному кроці:</strong> Стежте за своїми результатами, покращуйте свої знання та відслідковуйте свій прогрес.</li>
+                        <li><strong>Підтримка 24/7:</strong> Ми завжди готові допомогти вам у навчанні та відповісти на ваші питання.</li>
+                    </ul>
+                </div>
+
+                <div class="card p-4 mb-5">
+                    <h3 class="text-center">Наша місія</h3>
+                    <p>Ми прагнемо зробити процес навчання доступним для кожного. Наша місія — допомогти майбутнім водіям отримати необхідні знання для безпеки на дорозі та успішно скласти іспит на права.</p>
+                </div>
+
+            </div>
+        </div>
+     
+    {% else %}    
+    <h2 class="text-center mb-4 mt-5">Адмін-панель: Управління платформою</h2>
+      
+    <div class="row justify-content-center">
+        <div class="col-md-8 text-center">
+            <p class="text-center fs-5">Вітаємо, {{ request.user.first_name }}! Тут ви можете керувати тестами, користувачами, переглядати статистику та багато іншого.</p>
+        </div>
+    </div>
+    
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card p-4 mb-4">
+                <h3 class="text-center">Останні оновлення</h3>
+                <ul>
+                    <li>Додано новий тест: <strong>"{{ latest_quiz }}"</strong>.</li>
+                </ul>
+            </div>
+            
+            <div class="card p-4 mb-4">
+                <h3 class="text-center">Загальна статистика</h3>
+                <ul>
+                    <li>Кількість користувачів: <strong>{{ users_count }}</strong></li>
+                    <li>Кількість тестів: <strong>{{ questions_count }}</strong></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+   {% endif %}
+</div>
+
+{% endblock %}

@@ -1,0 +1,127 @@
+<nav class="navbar navbar-expand-lg custom-navbar">
+    <a class="navbar-brand" href="{%  url 'home' %}">HappyDriver</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+
+            {% if not request.user.is_staff %}
+            <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+               data-bs-toggle="dropdown" aria-expanded="false">
+                Теорія ПДР
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                <li><a class="dropdown-item" href="{% url 'road_signs' %}">Дорожні знаки</a></li>
+                <li><a class="dropdown-item" href="{% url 'road_markings' %}">Дорожня розмітка</a></li>
+                <li><a class="dropdown-item" href="{% url 'theory_traffic_light' %}">Світлофор</a></li>
+                <li><a class="dropdown-item" href="{% url 'theory_regulator' %}">Регулювальник</a></li>
+                <li><a class="dropdown-item" href="{% url 'theory_fines' %}">Штрафи</a></li>
+            </ul>
+            </li>
+
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    Тести ПДР
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'get_topic_quizzes' %}">Тести по темам</a></li>
+                    <li><a class="dropdown-item" href="{% url 'choose_quiz_category' %}">Тести по категоріях прав</a></li>
+                    <li><a class="dropdown-item" href="{% url 'get_paper_quizzes' %}">Тести по білетах</a></li>
+                </ul>
+                </li>
+
+            <li class="nav-item"><a class="nav-link" href="/#contacts">Контакти</a></li>
+            {% endif %}
+            {% if request.user.is_authenticated %}
+                <li class="nav-item"><a class="nav-link">|</a></li>
+
+                {% if request.user.is_staff %}
+
+                <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle profile" href="#" id="navbarDropdown5" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                   Тестування
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'create_quiz' %}">Створити нове</a></li>
+                    <li><a class="dropdown-item" href="{% url 'quiz_list' %}">Список тестувань</a></li>
+                </ul>
+                </li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle profile" href="#" id="navbarDropdown5" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                        Питання
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'create_question' %}">Додати нове</a></li>
+                        <li><a class="dropdown-item" href="{% url 'question_list' %}">Список питань</a></li>
+                    </ul>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link profile"
+                           href="{% url 'user_list' %}">Користувачі
+                        </a>
+                    </li>
+                {% else %}
+                <li class="nav-item">
+                    <a class="nav-link profile"
+                       href="{% url 'get_history_quizzes_results' pk=request.user.id filter='all' %}">Історія проходжень
+                    </a>
+                </li>
+                {% endif %}
+            {% endif %}
+        </ul>
+
+        {% if request.user.is_authenticated %}
+        <span>
+        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle profile" href="#" id="navbarDropdown7" role="button"
+                   data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="bi bi-person-circle"></i>Профіль
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item" href="{% url 'edit_user' %}">Редагувати профіль</a></li>
+                    <li>
+                        <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#deleteModal">Видалити профіль</a>
+                    </li>
+                </ul>
+            </li>
+
+            <li class="nav-item">
+                <a href="{% url 'signout' %}" class="btn btn-outline-light">Вихід</a>
+            </li>
+        </ul>
+        <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deleteModalLabel">Підтвердження видалення</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                    </div>
+                    <div class="modal-body">
+                        Ви впевнені, що хочете видалити профіль? Ця дія не може бути скасована.
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                        <a href="{% url 'delete_user' request.user.pk %}" class="btn btn-danger">Видалити</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <span>
+            <a href="{% url 'signin' %}" class="btn btn-light">Вхід</a>
+            <a href="{% url 'signup' %}" class="btn btn-outline-light">Реєстрація</a>
+        </span>
+        {% endif %}
+
+    </div>
+</nav>
