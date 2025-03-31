@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Список предметів :: {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card p-4 mb-5 mt-4">
+        <h2 class="auth-title">Список предметів</h2>
+
+        {% if subjects %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Назва</th>
+                        <th>Клас</th>
+                        <th>Дії</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subjects %}
+                    <tr>
+                        <td>{{ subject.title }}</td>
+                        <td>{{ subject.school_year }}</td>
+                        <td class="align-items-center">
+                            <a href="{% url 'edit_subject' subject.id %}" class="btn" style="color: orange;"><i class="bi bi-pencil-fill"></i></a>
+                            <button class="btn" style="color: red;" data-bs-toggle="modal" data-bs-target="#confirmDeleteModal" data-id="{{ subject.id }}">
+                                <i class="bi bi-trash3"></i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% else %}
+            <p class="fs-5 text-center">Немає предметів</p>
+        {% endif %}
+    </div>
+</div>
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmDeleteModalLabel">Підтвердження видалення</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Ви впевнені, що хочете видалити цей предмет?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Скасувати</button>
+                <a href="#" id="deleteConfirmBtn" class="btn btn-danger">Видалити</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const confirmDeleteModal = document.getElementById('confirmDeleteModal');
+    confirmDeleteModal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const quizId = button.getAttribute('data-id');
+        const deleteUrl = `{% url 'delete_subject' 0 %}`.replace('0', quizId);
+        const deleteConfirmBtn = document.getElementById('deleteConfirmBtn');
+        deleteConfirmBtn.setAttribute('href', deleteUrl);
+    });
+</script>
+{% endblock %}

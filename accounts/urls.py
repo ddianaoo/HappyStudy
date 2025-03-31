@@ -8,6 +8,9 @@ urlpatterns = [
     path('signout/', signout, name='signout'),
     path('edit-account/', edit_user, name='edit_user'),
     path('delete-account/', delete_user, name='delete_user'),
+    path('users/', ListUsers.as_view(), name='user_list'),
+    # path('add-assistant/', add_assistant, name='add_assistant'),
+
 
     # path('questions/', QuestionList.as_view(), name='question_list'),
     # path('create-question/', add_question, name='create_question'),
@@ -19,6 +22,9 @@ urlpatterns = [
     # path('edit-quiz/<int:quiz_id>/', edit_quiz, name='edit_quiz'),
     # path('delete-quiz/<int:quiz_id>/', delete_quiz, name='delete_quiz'),
 
-    path('users/', ListUsers.as_view(), name='user_list'),
-    # path('add-assistant/', add_assistant, name='add_assistant'),
+
+    path('subjects/', ListSubjects.as_view(), name='subject_list'),
+    path('create-subject/', create_subject, name='create_subject'),
+    path('edit-subject/<int:id>/', edit_subject, name='edit_subject'),
+    path('delete-subject/<int:id>/', delete_subject, name='delete_subject'),
 ]

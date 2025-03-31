@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Список учнів :: {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="card p-4 mb-5 mt-4">
+        <h2 class="auth-title">Список учнів</h2>
+
+        {% if users %}
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Електронна пошта</th>
+                        <th>Ім'я</th>
+                        <th>Прізвище</th>
+                        <th>Клас</th>
+                        <th>Роль</th>
+                        <th>Статус</th>
+                        <th>Проходження</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.firstname }}</td>
+                        <td>{{ user.lastname }}</td>
+                        <td>{{ user.school_year }}</td>
+                        <td>
+                            {% if user.is_staff %}
+                                Персонал
+                            {% else %}
+                                Користувач
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                Активний
+                            {% else %}
+                                Неактивний
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="" class="btn" style="color: orange;">
+                                <i class="bi bi-bar-chart-fill"></i> Переглянути
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+        {% else %}
+            <p class="fs-5 text-center">Немає зареєстрованих користувачів</p>
+        {% endif %}
+    </div>
+</div>
+
+{% endblock %}

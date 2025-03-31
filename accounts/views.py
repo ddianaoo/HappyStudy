@@ -2,6 +2,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import UserLoginForm, UserRegisterForm, UserEditForm
+from happystudy.forms import CreateSubjectForm
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.views.generic import ListView
@@ -107,6 +108,54 @@ def delete_user(request):
     return redirect('signout')
 
 
+
+@method_decorator(staff_login_required, name='dispatch')
+class ListSubjects(ListView):
+    context_object_name = 'subjects'
+    paginate_by = 10
+    model = Subject
+    template_name = 'accounts/subject_list.html'
+
+
+def create_subject(request):
+    if request.method == 'POST':
+        form = CreateSubjectForm(request.POST)
+        if form.is_valid():
+            # registration only
+            form.save()
+            messages.success(request, 'Предмет додано.')
+            return redirect('subject_list')
+        else:
+            messages.error(request, form.errors)
+    else:
+        form = CreateSubjectForm()
+    return render(request, 'accounts/base_form.html', {'form': form, 'title': 'Створення предмета', 'btn_name': 'Створити'})
+
+
+@staff_login_required
+def edit_subject(request, id):
+    subject = get_object_or_404(Subject, id=id)
+
+    if request.method == 'POST':
+        form = CreateSubjectForm(request.POST, instance=subject)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Предмет було успішно оновлено.')
+            return redirect('subject_list')
+    else:
+        form = CreateSubjectForm(instance=subject)
+    return render(request, 'accounts/base_form.html',
+                  {'form': form, 'title': 'Редагування предмету', 'btn_name': 'Оновити'})
+
+
+@staff_login_required
+def delete_subject(request, id):
+    subject = get_object_or_404(Subject, id=id)
+    subject.delete()
+    messages.success(request, "Предмет успішно видалено.")
+    return redirect('subject_list')
+
+
 # @method_decorator(staff_login_required, name='dispatch')
 # class QuizList(ListView):
 #     context_object_name = 'quizzes'
@@ -118,14 +167,6 @@ def delete_user(request):
 #         queryset = super().get_queryset()
 #         queryset = queryset.order_by('created_at')
 #         return queryset
-
-
-# @staff_login_required
-# def delete_quiz(request, quiz_id):
-#     quiz = get_object_or_404(Quiz, id=quiz_id)
-#     quiz.delete_quiz()
-#     messages.success(request, "Тест успішно видалено.")
-#     return redirect('quiz_list')
 
 
 # @staff_login_required

@@ -1,5 +1,5 @@
 from django import forms
-from .models import CustomUser
+from .models import CustomUser, CLASSES_CHOICES
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import authenticate
 
@@ -8,14 +8,15 @@ class UserRegisterForm(UserCreationForm):
     password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
     password2 = forms.CharField(label='Повторіть пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
 
+    school_year = forms.ChoiceField(label='Клас', choices=CLASSES_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+
     class Meta:
         model = CustomUser
         fields = ('firstname', 'lastname', 'email', 'school_year')
         widgets = {
             'firstname': forms.TextInput(attrs={'class': 'form-control'}),
             'lastname': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control'}),
-            'school_year': forms.Select(attrs={'class': 'form-control'})
+            'email': forms.EmailInput(attrs={'class': 'form-control'})
         }
 
 
@@ -47,16 +48,17 @@ class UserLoginForm(forms.ModelForm):
 
 
 class UserEditForm(forms.ModelForm):
+    school_year = forms.ChoiceField(label='Клас', choices=CLASSES_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+
     class Meta:
         model = CustomUser
         fields = ('email', 'firstname', 'lastname', 'school_year')
         widgets = {
             'firstname': forms.TextInput(attrs={'class': 'form-control'}),
             'lastname': forms.TextInput(attrs={'class': 'form-control'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'readonly': 'readonly'}),
-            'school_year': forms.Select(attrs={'class': 'form-control'})
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'readonly': 'readonly'})
         }
-        
+
     def __init__(self, *args, **kwargs):
         user = kwargs.get('instance')
         super().__init__(*args, **kwargs)

@@ -14,7 +14,7 @@
 
             {% if not request.user.is_staff %}
 
-            <li class="nav-item"><a class="nav-link" href="">Тести</a></li>
+            <li class="nav-item"><a class="nav-link" href="{% url 'get_subjects' %}">Предмети</a></li>
             <li class="nav-item"><a class="nav-link" href="/#contacts">Контакти</a></li>
             {% endif %}
             {% if request.user.is_authenticated %}
@@ -36,11 +36,11 @@
                 <li class="nav-item dropdown">
                     <a class="nav-link dropdown-toggle profile" href="#" id="navbarDropdown5" role="button"
                        data-bs-toggle="dropdown" aria-expanded="false">
-                        Питання
+                        Предмети
                     </a>
                     <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="">Додати нове</a></li>
-                        <li><a class="dropdown-item" href="">Список питань</a></li>
+                        <li><a class="dropdown-item" href="{% url 'create_subject' %}">Додати новий</a></li>
+                        <li><a class="dropdown-item" href="{% url 'subject_list' %}">Список предметів</a></li>
                     </ul>
                     </li>
 
