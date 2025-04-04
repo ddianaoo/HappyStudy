@@ -17,29 +17,35 @@
                 
                 <div class="col-md-4 mb-4" >
                     <div class="home-card shadow-sm d-flex flex-column">
+                        <a class="no-link-style" href="{% url 'get_subject' english_subject.pk %}">
                         <div class="card-body d-flex flex-column justify-content-center align-items-center">
                             <h5 class="card-title">Англійська мова</h5>
                             <p class="card-text">Для учнів 5-9 класів</p>
                             <img src="{% static 'img/english-home.svg' %}" alt="Англійська мова іконка" width="60%">
                         </div>
+                        </a>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
                     <div class="home-card shadow-sm d-flex flex-column">
+                        <a class="no-link-style" href="{% url 'get_subject' math_subject.pk %}">
                         <div class="card-body d-flex flex-column justify-content-center align-items-center">
                             <h5 class="card-title">Математика</h5>
                             <p class="card-text">Для учнів 5-9 класів</p>
                             <img src="{% static 'img/math-home.svg' %}" alt="Математика іконка" width="60%">
                         </div>
+                        </a>
                     </div>
                 </div>
                 <div class="col-md-4 mb-4">
                     <div class="home-card shadow-sm d-flex flex-column">
+                        <a class="no-link-style" href="{% url 'get_subjects' %}">
                         <div class="card-body d-flex flex-column justify-content-center align-items-center">
                             <h5 class="card-title">Середня школа</h5>
                             <p class="card-text">Цікаві тести з усіх предметів</p>
                             <img src="{% static 'img/ser-home.svg' %}" alt="Середня школа іконка" width="60%">
                         </div>
+                        </a>
                     </div>
                 </div>
             </div>
@@ -60,9 +66,6 @@
           <div class="col-md-12 text-center d-flex justify-content-center align-items-center">
             <img src="{% static 'img/main-home.jpg' %}"
             alt="" class="d-block mx-auto img-fluid" width="100%">
-            <a href="" class="btn choose-btn btn-lg position-absolute top-70 start-50 translate-middle">
-              Обрати тестування
-            </a>
           </div>
 
         <div class="row justify-content-center mb-5">
@@ -95,27 +98,31 @@
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <h5 class="card-title">Створити тест</h5>
                     <p class="card-text">Створюйте нові тестування</p>
-                    <img src="{% static 'img/create-test.svg' %}" alt="Англійська мова іконка" width="40%">
+                    <img src="{% static 'img/create-test.svg' %}" alt="Створити тест іконка" width="40%">
                 </div>
                 </a>
             </div>
         </div>
         <div class="col-md-4 mb-4">
             <div class="home-card shadow-sm d-flex flex-column">
+                <a class="no-link-style" href="{% url 'quiz_list' %}">
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <h5 class="card-title">Список тестувань</h5>
                     <p class="card-text">Перегляньте існуючі тести</p>
-                    <img src="{% static 'img/tests.svg' %}" alt="Математика іконка" width="40%">
+                    <img src="{% static 'img/tests.svg' %}" alt="Список тестувань іконка" width="40%">
                 </div>
+                </a>
             </div>
         </div>
         <div class="col-md-4 mb-4">
             <div class="home-card shadow-sm d-flex flex-column">
+                <a class="no-link-style" href="{% url 'user_list' %}">
                 <div class="card-body d-flex flex-column justify-content-center align-items-center">
                     <h5 class="card-title">Учні</h5>
                     <p class="card-text">Відстежуйте прогрес у навчанні учнів</p>
-                    <img src="{% static 'img/users-home.svg' %}" alt="Середня школа іконка" width="40%">
+                    <img src="{% static 'img/users-home.svg' %}" alt="Учні іконка" width="40%">
                 </div>
+                </a>
             </div>
         </div>
     </div>
@@ -126,7 +133,9 @@
             <div class="card p-4 mb-4">
                 <h2 class="text-center">Загальна статистика</h2>
                 <ul>
-                    <li class="fs-5">Додано новий тест: <strong>"--"</strong>.</li>
+                    {% if latest_quiz %}
+                    <li class="fs-5">Додано новий тест: <strong>"{{ latest_quiz }}"</strong></li>
+                    {% endif %}
                     <li class="fs-5">Кількість тестів: <strong>{{ quizzes_count }}</strong></li>
                     <li class="fs-5">Кількість користувачів: <strong>{{ users_count }}</strong></li>
                 </ul>

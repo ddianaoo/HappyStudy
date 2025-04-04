@@ -12,7 +12,6 @@ from .utils import custom_login_required, staff_login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
-from django.forms import formset_factory
 
 
 def signup(request):
@@ -112,19 +111,22 @@ def delete_user(request):
 @method_decorator(staff_login_required, name='dispatch')
 class ListSubjects(ListView):
     context_object_name = 'subjects'
-    paginate_by = 10
+    paginate_by = 15
     model = Subject
     template_name = 'accounts/subject_list.html'
 
     def get_queryset(self):
-        return Subject.objects.order_by('title') 
-
+        queryset = Subject.objects.order_by('title')
+        year = self.request.GET.get('year')
+        if year and year != "all":
+            year = " ".join(year.split("-"))
+            queryset = queryset.filter(school_year=year).order_by('title')
+        return queryset
 
 def create_subject(request):
     if request.method == 'POST':
-        form = CreateSubjectForm(request.POST)
+        form = CreateSubjectForm(request.POST, request.FILES)
         if form.is_valid():
-            # registration only
             form.save()
             messages.success(request, 'Предмет додано.')
             return redirect('subject_list')
@@ -140,7 +142,7 @@ def edit_subject(request, id):
     subject = get_object_or_404(Subject, id=id)
 
     if request.method == 'POST':
-        form = CreateSubjectForm(request.POST, instance=subject)
+        form = CreateSubjectForm(request.POST,  request.FILES, instance=subject)
         if form.is_valid():
             form.save()
             messages.success(request, 'Предмет було успішно оновлено.')
@@ -159,17 +161,17 @@ def delete_subject(request, id):
     return redirect('subject_list')
 
 
-# @method_decorator(staff_login_required, name='dispatch')
-# class QuizList(ListView):
-#     context_object_name = 'quizzes'
-#     paginate_by = 15
-#     model = Quiz
-#     template_name = 'accounts/quiz_list.html'
+@method_decorator(staff_login_required, name='dispatch')
+class QuizList(ListView):
+    context_object_name = 'quizzes'
+    paginate_by = 15
+    model = Quiz
+    template_name = 'accounts/quiz_list.html'
 
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         queryset = queryset.order_by('created_at')
-#         return queryset
+    def get_queryset(self):
+        queryset = super().get_queryset()
+        queryset = queryset.order_by('created_at')
+        return queryset
 
 
 @staff_login_required
@@ -265,101 +267,9 @@ def create_quiz(request):
 #         return JsonResponse({'message': 'Тест успішно оновлено!'}, status=201)
 
 
-# @staff_login_required
-# def add_question(request):
-#     if request.method == 'POST':
-#         quiz_ids = request.POST.getlist('quiz_ids')
-#         text = request.POST.get('text')
-#         explanation = request.POST.get('explanation', '')
-#         image = request.FILES.get('image', '')
-#         correct_answer = request.POST.get('correct_answer')
-#         answers = request.POST.getlist('answers[]')
-
-#         if not quiz_ids or not text or not correct_answer or len(answers) < 2:
-#             return JsonResponse({'error': 'Усі поля мають бути заповнені'}, status=400)
-
-#         question = Question.objects.create(text=text, explanation=explanation, image=image)
-#         quizzes = Quiz.objects.filter(id__in=quiz_ids)
-#         for quiz in quizzes:
-#             quiz.quiz_questions.create(question=question)
-
-#         for i, answer_text in enumerate(answers, start=1):
-#             Answer.objects.create(
-#                 question=question,
-#                 text=answer_text,
-#                 is_correct=(str(i) == correct_answer)
-#             )
-
-#         return JsonResponse({'message': 'Питання додано успішно!'}, status=201)
-
-#     quizzes = Quiz.objects.filter(is_random=False)
-#     return render(request, "accounts/add_question.html", {"quizzes": quizzes})
-
-
-# @staff_login_required
-# def edit_question(request, question_id):
-#     question = get_object_or_404(Question, id=question_id)
-#     if request.method == 'POST':
-#         quiz_ids = request.POST.getlist('quiz_ids')
-#         text = request.POST.get('text')
-#         explanation = request.POST.get('explanation', '')
-#         image = request.FILES.get('image', None)
-#         correct_answer = request.POST.get('correct_answer')
-#         answers = request.POST.getlist('answers[]')
-
-#         if not quiz_ids or not text or not correct_answer or len(answers) < 2:
-#             return JsonResponse({'error': 'Усі поля мають бути заповнені'}, status=400)
-
-#         question.text = text
-#         question.explanation = explanation
-#         question.image = image
-#         question.save()
-
-#         question.quiz_questions.all().delete()
-#         quizzes = Quiz.objects.filter(id__in=quiz_ids)
-#         for quiz in quizzes:
-#             quiz.quiz_questions.create(question=question)
-
-#         existing_answers = list(question.answers.all()) 
-
-#         for i, answer_text in enumerate(answers, start=1):
-#             if i <= len(existing_answers):
-#                 existing_answer = existing_answers[i - 1]
-#                 existing_answer.text = answer_text
-#                 existing_answer.is_correct = (str(i) == correct_answer)
-#                 existing_answer.save()
-#         return JsonResponse({'message': 'Питання оновлено успішно!'}, status=200)
-
-#     quizzes = Quiz.objects.all()
-#     question_quizzes = question.quiz_questions.values_list('quiz_id', flat=True)
-#     return render(request, "accounts/edit_question.html", {
-#         "question": question,
-#         "quizzes": quizzes,
-#         "question_quizzes": question_quizzes,
-#     })
-
-
-# @staff_login_required
-# def delete_question(request, question_id):
-#     question = get_object_or_404(Question, id=question_id)
-#     question.delete_question()
-#     return redirect('question_list')
-    
-
-# @method_decorator(staff_login_required, name='dispatch')
-# class QuestionList(ListView):
-#     context_object_name = 'questions'
-#     paginate_by = 8
-#     model = Question
-#     template_name = 'accounts/question_list.html'
-
-#     def get_queryset(self):
-#         queryset = super().get_queryset()
-#         queryset = queryset.order_by('created_at')
-#         return queryset
-
-#     def get_context_data(self, **kwargs):
-#         context = super().get_context_data(**kwargs)
-#         context['quizzes'] = Quiz.objects.all()
-
-#         return context
+@staff_login_required
+def delete_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    quiz.delete_quiz()
+    messages.success(request, "Тест успішно видалено.")
+    return redirect('quiz_list')

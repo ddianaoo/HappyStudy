@@ -44,7 +44,7 @@
                             {% endif %}
                         </td>
                         <td>
-                            <a href="" class="btn" style="color: orange;">
+                            <a href="{% url 'get_history_quizzes_results' pk=user.id filter='all' %}" class="btn" style="color: orange;">
                                 <i class="bi bi-bar-chart-fill"></i> Переглянути
                             </a>
                         </td>

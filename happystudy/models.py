@@ -5,6 +5,7 @@ from accounts.models import CustomUser, CLASSES_CHOICES
 class Subject(models.Model):
     title = models.CharField(max_length=255)
     school_year = models.CharField(max_length=10, choices=CLASSES_CHOICES)
+    image = models.ImageField(upload_to='subjects_images/', null=True, blank=True)
 
     class Meta:
         constraints = [
@@ -17,17 +18,21 @@ class Subject(models.Model):
 
 class Quiz(models.Model):
     title = models.CharField(max_length=255, unique=True)
-
+    created_at = models.DateTimeField(auto_now_add=True)
     subject = models.ForeignKey(Subject, related_name='quizzes', on_delete=models.CASCADE)
 
     def __str__(self):
         return self.title
 
+    def delete_quiz(self):
+        self.questions.all().delete()
+        UsersQuizzes.objects.filter(quiz=self).delete()
+        self.delete()
+
 
 class Question(models.Model):
     title = models.TextField(max_length=255)
     image = models.ImageField(upload_to='questions_images/', null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
 
     quiz = models.ForeignKey(Quiz, related_name='questions', on_delete=models.CASCADE)
 
