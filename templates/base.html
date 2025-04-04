@@ -21,8 +21,12 @@
     {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
+        <div style="z-index: 9;" class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+            <span>{{ message }}</span>
+            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
         {% else %}
-        <div style="z-index: 10;" class="alert alert-{{ message.tags }} d-flex justify-content-between align-items-center" role="alert">
+        <div style="z-index: 9;" class="alert alert-{{ message.tags }} d-flex justify-content-between align-items-center" role="alert">
             <span>{{ message }}</span>
             <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>

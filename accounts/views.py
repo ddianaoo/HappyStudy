@@ -1,7 +1,7 @@
 import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
-from .forms import UserLoginForm, UserRegisterForm, UserEditForm
+from .forms import UserLoginForm, UserRegisterForm, UserEditForm, StaffRegisterForm
 from happystudy.forms import *
 from django.contrib.auth import login, logout
 from django.contrib import messages
@@ -60,21 +60,20 @@ class ListUsers(ListView):
         return queryset
 
 
-# @staff_login_required
-# def add_assistant(request):
-#     if request.method == 'POST':
-#         form = UserRegisterForm(request.POST)
-#         if form.is_valid():
-#             user = form.save(commit=False)
-#             user.is_staff = True
-#             user.is_superuser = False
-#             user.save()
-#             messages.success(request, 'Ви додали помічника!')
-#             return redirect('user_list')
-#     else:
-#         form = UserRegisterForm()
-#     return render(request, 'accounts/signup.html',
-#                   {'form': form, 'title': 'Додати помічника'})
+@staff_login_required
+def add_assistant(request):
+    if request.method == 'POST':
+        form = StaffRegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            user.is_staff = True
+            user.is_superuser = False
+            user.save()
+            messages.success(request, 'Ви додали помічника!')
+            return redirect('user_list')
+    else:
+        form = StaffRegisterForm()
+    return render(request, 'accounts/base_form.html', {'form': form, 'title': 'Реєстрація помічника', 'btn_name': 'Відправити'})
 
 
 @login_required
@@ -174,6 +173,50 @@ class QuizList(ListView):
         return queryset
 
 
+# @staff_login_required
+# def create_quiz(request):
+#     if request.method == 'GET':
+#         subjects = Subject.objects.all()
+#         return render(request, 'accounts/create_quiz.html', {"subjects": subjects})
+
+#     elif request.method == 'POST':
+#         data = json.loads(request.POST['data'])
+#         files = request.FILES
+
+#         if not data['questions']:
+#             return JsonResponse({'error': 'У теста має бути хоча б одне питання!'}, status=400)
+
+#         try:
+#             subject = get_object_or_404(Subject, pk=data['subject'])
+#             quiz = Quiz.objects.create(
+#                 title=data['testName'],
+#                 subject=subject
+#             )
+
+#             for question_index, question_data in enumerate(data['questions']):
+#                 image_key = f'questions[{question_index}][image]'
+#                 image_file = files.get(image_key) if image_key in files else None
+
+#                 question = Question.objects.create(
+#                     title=question_data['text'],
+#                     image=image_file,
+#                     quiz=quiz
+#                 )
+
+#                 for answer_data in question_data['answers']:
+#                     Answer.objects.create(
+#                         question=question,
+#                         text=answer_data['text'],
+#                         is_correct=answer_data['is_correct']
+#                     )
+#         except IntegrityError:
+#             return JsonResponse({'error': 'Тест із такою назвою вже існує!'}, status=400)
+#         except Exception as e:
+#             return JsonResponse({'error': 'Сталася помилка під час створення тесту!'}, status=500)
+#         else:
+#             return JsonResponse({'message': 'Тестування створено!'}, status=201)
+
+
 @staff_login_required
 def create_quiz(request):
     if request.method == 'GET':
@@ -184,6 +227,9 @@ def create_quiz(request):
         data = json.loads(request.POST['data'])
         files = request.FILES
 
+        if not data['questions']:
+            return JsonResponse({'error': 'У теста має бути хоча б одне питання!'}, status=400)
+
         try:
             subject = get_object_or_404(Subject, pk=data['subject'])
             quiz = Quiz.objects.create(
@@ -191,9 +237,10 @@ def create_quiz(request):
                 subject=subject
             )
 
-            for question_index, question_data in enumerate(data['questions']):
-                image_key = f'questions[{question_index}][image]'
-                image_file = files.get(image_key) if image_key in files else None
+            for i, question_data in enumerate(data['questions']):
+                # ⚠️ ВАЖНО: получаем индекс так, как он есть в полях formData
+                image_key = f'questions[{i}][image]'
+                image_file = files.get(image_key)
 
                 question = Question.objects.create(
                     title=question_data['text'],
@@ -207,10 +254,14 @@ def create_quiz(request):
                         text=answer_data['text'],
                         is_correct=answer_data['is_correct']
                     )
+
         except IntegrityError:
             return JsonResponse({'error': 'Тест із такою назвою вже існує!'}, status=400)
+
         except Exception as e:
+            print(e)  # можно логировать
             return JsonResponse({'error': 'Сталася помилка під час створення тесту!'}, status=500)
+
         else:
             return JsonResponse({'message': 'Тестування створено!'}, status=201)
 

@@ -20,6 +20,20 @@ class UserRegisterForm(UserCreationForm):
         }
 
 
+class StaffRegisterForm(UserCreationForm):
+    password1 = forms.CharField(label='Пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+    password2 = forms.CharField(label='Повторіть пароль', widget=forms.PasswordInput(attrs={'class': 'form-control'}))
+
+    class Meta:
+        model = CustomUser
+        fields = ('firstname', 'lastname', 'email')
+        widgets = {
+            'firstname': forms.TextInput(attrs={'class': 'form-control'}),
+            'lastname': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'})
+        }
+
+
 class UserLoginForm(forms.ModelForm):
 
     class Meta:

@@ -9,18 +9,18 @@
 <div class="container mt-5">
     <h2 class="text-center mb-4 mt-5">{{ quiz.title }}</h2>
 
-    <div class="row">
-
+    <div class="row justify-content-center">
+        <div class="col-md-6">
         <form method="post" action="{% url 'submit_quiz' quiz.pk %}">
             {% csrf_token %}
             
             {% for question in quiz.questions.all %}
-            <div class="card mb-4">
+            <div class="card">
                 <div class="card-body">
                     <h5>{{ forloop.counter }}. {{ question.title }}</h5>
                     
                     {% if question.image %}
-                    <img src="{{ question.image.url }}" class="img-fluid my-2" alt="Question image">
+                    <img src="{{ question.image.url }}" style="height: 200px;" class="mx-auto d-block my-3" alt="Question image">
                     {% endif %}
     
                     {% for answer in question.answers.all %}
@@ -38,10 +38,10 @@
                 </div>
             </div>
             {% endfor %}
-    
-            <button type="submit" class="auth-btn">Завершити тест</button>
+            
+            <button type="submit" class="auth-btn mt-0 mb-4">Завершити тест</button>
         </form>
-
+    </div>
     </div>
 </div>
 

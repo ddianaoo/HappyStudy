@@ -11,7 +11,7 @@ from django.utils import timezone
 def home_page(request):
     english_subject = Subject.objects.get(title="Англійська мова", school_year="5 клас")
     math_subject = Subject.objects.get(title="Математика", school_year="5 клас")
-    if request.user.is_authenticated:
+    if request.user.is_authenticated and request.user.is_staff == False:
         year = request.user.school_year
         english_subject = Subject.objects.get(title="Англійська мова", school_year=year)
         math_subject = Subject.objects.get(title="Математика", school_year=year)
@@ -80,6 +80,7 @@ def submit_quiz(request, quiz_id):
 def set_message(request):
     if request.method == 'POST':
         message = request.POST.get('message', '')
+        print(message)
         if message:
             messages.error(request, message)
         return JsonResponse({'status': 'success'})
@@ -88,14 +89,20 @@ def set_message(request):
 @login_required
 def get_history_quizzes_results(request, pk, filter):
     user = get_object_or_404(CustomUser, pk=pk)
+    user_year = user.school_year
+    subjects = Subject.objects.filter(school_year=user_year)
+
     if filter == "all":
         user_quizzes = UsersQuizzes.objects.filter(user=user, finished_at__isnull=False).order_by("-finished_at")
-
+    else:
+        user_quizzes = UsersQuizzes.objects.filter(user=user, quiz__subject__title=filter, finished_at__isnull=False).order_by("-finished_at")
+        
     count = user_quizzes.count()
 
     return render(request, "happystudy/history_data.html", {
         'user_quizzes': user_quizzes,
         'count': count,
         'title': 'Історія проходжень',
-        'user_pk': pk
+        'user_pk': pk,
+        'subjects': subjects
     })

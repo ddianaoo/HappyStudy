@@ -10,11 +10,18 @@
   <i><p class="text-center mb-4">Кількість пройдених тестів: {{ count }}</p></i>
   <div class="row justify-content-center">
 
-    <div class="col-md-2">
-        <div class="list-group">
+    <div class="col-md-3">
+        <div class="card list-group">
             <a href="{% url 'get_history_quizzes_results' pk=user_pk filter='all' %}" class="list-group-item list-group-item-action">
                 Усі
-              </a>
+            </a>
+            {% for subject in subjects %}
+            {% with filter_value=subject.title %}
+            <a href="{% url 'get_history_quizzes_results' pk=user_pk filter=filter_value %}" class="list-group-item list-group-item-action">
+                {{ subject.title }}
+            </a>
+            {% endwith %}
+            {% endfor %}
         </div>
       </div>
 
@@ -35,7 +42,7 @@
               <strong>{{ forloop.counter }}. Питання:</strong> {{ result.answer.question.title }} <br>
               {% if result.answer.question.image %}
               <div>
-                <img src="{{ result.answer.question.image.url }}" alt="Question Image" class="img-fluid mb-2">
+                <img src="{{ result.answer.question.image.url }}" style="height: 200px;" alt="Question Image" class="mx-auto d-block my-3">
             </div>
                 {% endif %}
               <strong>Ваша відповідь:</strong> {{ result.answer.text }}
@@ -78,8 +85,6 @@
           <button class="auth-btn toggle-results-btn">Показати результати</button>
         </div>
       </div>
-      {% empty %}
-        <p class="text-center">Ви ще не проходили такі тестування.</p>
       {% endfor %}
     </div>
   </div>

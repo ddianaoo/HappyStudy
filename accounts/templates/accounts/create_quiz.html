@@ -42,67 +42,64 @@
 <script>
     const questionsContainer = document.getElementById('questionsContainer');
     const addQuestionBtn = document.getElementById('addQuestionBtn');
+    let globalQuestionIndex = 0;
 
-    let questionIndex = 0;
-
-    function updateQuestionIndices() {
-        const questionDivs = questionsContainer.querySelectorAll('.question-item');
-        questionDivs.forEach((div, index) => {
-            const questionNumber = index + 1;
-            div.id = `question_${questionNumber}`;
-            div.querySelector('.question-title h5').textContent = `Питання ${questionNumber}`;
-
-            // Update input names
-            const inputs = div.querySelectorAll('input, textarea');
-            inputs.forEach((input) => {
-                const name = input.name.replace(/\d+/, questionNumber);
-                input.name = name;
-            });
-        });
-        questionIndex = questionDivs.length;
-    }
-
-    addQuestionBtn.addEventListener('click', () => {
-        updateQuestionIndices();
-        questionIndex++;
+    function createQuestionBlock(index) {
         const questionDiv = document.createElement('div');
         questionDiv.classList.add('mb-4', 'border', 'p-3', 'rounded', 'question-item');
-        questionDiv.id = `question_${questionIndex}`;
+        questionDiv.dataset.index = index;
+
         questionDiv.innerHTML = `
             <div class="d-flex justify-content-between align-items-center question-title">
-                <h5>Питання ${questionIndex}</h5>
+                <h5>Питання</h5>
                 <button type="button" class="btn btn-danger btn-sm remove-question-btn">видалити</button>
             </div>
             <div class="mb-3">
-                <label for="question_${questionIndex}" class="form-label">Текст питання:</label>
-                <input type="text" id="question_${questionIndex}" name="questions[${questionIndex}][name]" class="form-control" placeholder="Введіть текст питання" required>
+                <label class="form-label">Текст питання:</label>
+                <input type="text" name="questions[${index}][name]" class="form-control" placeholder="Введіть текст питання" required>
             </div>
             <div class="mb-3">
-                <label for="image_${questionIndex}" class="form-label">Зображення (додатково):</label>
-                <input type="file" id="image_${questionIndex}" name="questions[${questionIndex}][image]" class="form-control">
+                <label class="form-label">Зображення (додатково):</label>
+                <input type="file" name="questions[${index}][image]" class="form-control">
             </div>
             <div class="mb-3">
                 <label class="form-label">Варіанти відповідей:</label>
-                <div>
-                    ${[1, 2, 3].map(i => `
-                        <div class="input-group mb-2">
-                            <div class="input-group-text">
-                                <input type="radio" name="questions[${questionIndex}][correct]" value="${i}" required>
-                            </div>
-                            <input type="text" name="questions[${questionIndex}][answers][${i}]" class="form-control" placeholder="Варіант ${i}" required>
+                ${[1, 2, 3].map(i => `
+                    <div class="input-group mb-2">
+                        <div class="input-group-text">
+                            <input type="radio" name="questions[${index}][correct]" value="${i}" required>
                         </div>
-                    `).join('')}
-                </div>
+                        <input type="text" name="questions[${index}][answers][${i}]" class="form-control" placeholder="Варіант ${i}" required>
+                    </div>
+                `).join('')}
             </div>
         `;
 
-        questionsContainer.appendChild(questionDiv);
-
-        // Add event listener to the "Delete" button
         questionDiv.querySelector('.remove-question-btn').addEventListener('click', () => {
-            questionsContainer.removeChild(questionDiv);
+            questionDiv.remove();
             updateQuestionIndices();
         });
+
+        questionsContainer.appendChild(questionDiv);
+        updateQuestionIndices();
+    }
+
+    function updateQuestionIndices() {
+        const questionDivs = questionsContainer.querySelectorAll('.question-item');
+        questionDivs.forEach((div, newIndex) => {
+            div.dataset.index = newIndex;
+            div.querySelector('h5').textContent = `Питання ${newIndex + 1}`;
+
+            div.querySelectorAll('input').forEach(input => {
+                input.name = input.name.replace(/questions\[\d+]/g, `questions[${newIndex}]`);
+            });
+        });
+
+        globalQuestionIndex = questionDivs.length;
+    }
+
+    addQuestionBtn.addEventListener('click', () => {
+        createQuestionBlock(globalQuestionIndex);
     });
 
     document.getElementById('testForm').addEventListener('submit', async (e) => {
@@ -116,24 +113,28 @@
         };
 
         const questionDivs = document.querySelectorAll('.question-item');
-        questionDivs.forEach((div, index) => {
+        questionDivs.forEach(div => {
+            const index = div.dataset.index;
+
             const question = {
-                text: div.querySelector(`[name^="questions"]`).value,
+                text: div.querySelector(`[name="questions[${index}][name]"]`).value,
                 answers: []
             };
 
-            const imageInput = div.querySelector(`[name^="questions"][name$="[image]"]`);
+            const imageInput = div.querySelector(`[name="questions[${index}][image]"]`);
             if (imageInput && imageInput.files.length > 0) {
                 formData.append(`questions[${index}][image]`, imageInput.files[0]);
             }
 
-            const answers = div.querySelectorAll(`[name^="questions"][name*="[answers]"]`);
-            answers.forEach((answerInput, i) => {
+            for (let i = 1; i <= 3; i++) {
+                const answerInput = div.querySelector(`[name="questions[${index}][answers][${i}]"]`);
+                const radioInput = div.querySelector(`[name="questions[${index}][correct]"][value="${i}"]`);
+
                 question.answers.push({
                     text: answerInput.value,
-                    is_correct: div.querySelector(`[name^="questions"][value="${i + 1}"]`).checked
+                    is_correct: radioInput.checked
                 });
-            });
+            }
 
             data.questions.push(question);
         });
@@ -148,22 +149,22 @@
         if (response.ok) {
             window.location.href = '/accounts/quizzes/';
         } else {
-            const data = await response.json();
-        if (data.error) {
-            const errorForm = new FormData();
-            errorForm.append('message', data.error);
+            const res = await response.json();
+            if (res.error) {
+                console.error(res.error);
+                const errorForm = new FormData();
+                errorForm.append('message', res.error);
 
-            await fetch('/set-message/', {
-                method: 'POST',
-                body: errorForm,
-                credentials: "same-origin"
-            });
+                await fetch('/set-message/', {
+                    method: 'POST',
+                    body: errorForm,
+                    credentials: "same-origin"
+                });
 
-            window.location.reload();
-        }
+                window.location.reload();
+            }
         }
     });
-
 </script>
 
 {% endblock %}
