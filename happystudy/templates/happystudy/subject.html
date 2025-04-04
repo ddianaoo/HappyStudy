@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title }} :: {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+        {% if request.user.is_authenticated %}
+        <h2 class="text-center mb-4">{{ subject.title }}</h2>
+        
+        <div class="row">
+            {% for quiz in quizzes %}
+                <div class="col-md-4 mb-4">
+                    <a class="no-link-style" href="{% url 'get_quiz' quiz.pk %}"> 
+                    <div class="home-card shadow-sm d-flex flex-column">
+                        <div class="card-body d-flex flex-column justify-content-center align-items-center">
+                            <h5 class="card-title">{{ quiz.title }}</h5>
+                        </div>
+                    </div>
+                    </a>
+                </div>
+            {% empty %}
+                <p class="text-center">Тести не знайдені.</p>
+            {% endfor %}
+        </div>
+        
+        {% else %}
+        <div class="row justify-content-center">
+            <div class="col-md-12">
+                <div class="card p-4 mb-4">
+                    <h2 class="text-center">{{ subject.title }}</h2>
+                    <p class="text-center fs-5">
+                        Вивчати математику, проходячи наші тестування це захопливо та легко! 
+                Ми працюємо з тими ж темами, що зустрічаються й у шкільній програмі, але робимо це значно цікавіше.
+                </p>
+                </div>
+            </div>
+        </div>
+
+        {% endif %}
+</div>
+{% endblock %}
+
+{% block scripts %} 
+
+{% endblock %}

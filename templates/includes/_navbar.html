@@ -28,7 +28,7 @@
                    Тестування
                 </a>
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <li><a class="dropdown-item" href="">Створити нове</a></li>
+                    <li><a class="dropdown-item" href="{% url 'create_quiz' %}">Створити нове</a></li>
                     <li><a class="dropdown-item" href="">Список тестувань</a></li>
                 </ul>
                 </li>
@@ -52,7 +52,7 @@
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link profile"
-                       href="">Історія проходжень
+                       href="{% url 'get_history_quizzes_results' pk=request.user.id filter='all' %}">Історія проходжень
                     </a>
                 </li>
                 {% endif %}

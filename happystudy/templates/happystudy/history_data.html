@@ -1,0 +1,158 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title }} :: {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <h2 class="text-center mt-5">Історія проходження тестувань</h2>
+  <i><p class="text-center mb-4">Кількість пройдених тестів: {{ count }}</p></i>
+  <div class="row justify-content-center">
+
+    <div class="col-md-2">
+        <div class="list-group">
+            <a href="{% url 'get_history_quizzes_results' pk=user_pk filter='all' %}" class="list-group-item list-group-item-action">
+                Усі
+              </a>
+        </div>
+      </div>
+
+    <div class="col-md-8">
+      {% for quiz in user_quizzes %}
+      <div class="card p-4 mb-5">
+        <h5 class="text-center">{{ quiz.quiz.title }}</h5>
+        <p><strong>Дата початку проходження:</strong> {{ quiz.started_at|date:"d.m.Y H:i:s" }}</p>
+        <p><strong>Дата завершення проходження:</strong> {{ quiz.finished_at|date:"d.m.Y H:i:s" }}</p>
+        <p><strong>Правильних відповідей:</strong> <span class="correct-answers-count"></span></p>
+        <div class="col-md-6">
+          <canvas class="result-chart"></canvas>
+        </div>
+        
+        <ul class="results-list mt-3 mb-0" data-quiz-id="{{ quiz.id }}" style="display: none;">
+          {% for result in quiz.result_set.all %}
+            <li data-is-correct="{{ result.answer.is_correct }}">
+              <strong>{{ forloop.counter }}. Питання:</strong> {{ result.answer.question.title }} <br>
+              {% if result.answer.question.image %}
+              <div>
+                <img src="{{ result.answer.question.image.url }}" alt="Question Image" class="img-fluid mb-2">
+            </div>
+                {% endif %}
+              <strong>Ваша відповідь:</strong> {{ result.answer.text }}
+              {% if result.answer.is_correct %}
+                <span class="text-success">Правильна</span>
+              {% else %}
+                <span class="text-danger">Неправильна</span>
+                <p class="mb-0"><strong>Правильна відповідь:</strong> {{ result.answer.question.get_correct_answer }}</p>
+              {% endif %}
+              {% if result.answer.question.explanation %}
+                <div>
+                    <button type="button" class="btn btn-outline-info" data-bs-toggle="modal" data-bs-target="#explanationModal-{{ result.answer.question.id }}">
+                        Пояснення <i class="bi bi-patch-question-fill"></i>
+                    </button>
+                    <div class="modal fade" id="explanationModal-{{ result.answer.question.id }}" tabindex="-1" aria-labelledby="explanationModalLabel-{{ result.answer.question.id }}" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="explanationModalLabel-{{ result.answer.question.id }}">Пояснення</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Закрити"></button>
+                                </div>
+                                <div class="modal-body">
+                                    {{ result.answer.question.explanation }}
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-success" data-bs-dismiss="modal">Закрити</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              {% endif %}
+            </li>
+          {% empty %}
+            <p class="text-center">Результати не знайдені.</p>
+          {% endfor %}
+        </ul>
+
+        <div class="text-center mt-0">
+          <button class="auth-btn toggle-results-btn">Показати результати</button>
+        </div>
+      </div>
+      {% empty %}
+        <p class="text-center">Ви ще не проходили такі тестування.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  document.addEventListener("DOMContentLoaded", function() {
+    const quizElements = document.querySelectorAll('.results-list');
+
+    quizElements.forEach(quizElement => {
+      const answers = quizElement.querySelectorAll('li');
+      let correctCount = 0;
+      let incorrectCount = 0;
+
+      answers.forEach(answer => {
+        if (answer.dataset.isCorrect === 'True') {
+          correctCount++;
+        } else {
+          incorrectCount++;
+        }
+      });
+
+      const canvas = quizElement.closest('.card').querySelector('.result-chart');
+      const ctx = canvas.getContext('2d');
+
+      new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Правильні', 'Неправильні'],
+          datasets: [{
+            label: 'Результати тестування',
+            data: [correctCount, incorrectCount],
+            backgroundColor: ['#28a745', '#dc3545'],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: 'top',
+            },
+            tooltip: {
+              callbacks: {
+                label: function(tooltipItem) {
+                  return tooltipItem.raw + ' відповіді';
+                }
+              }
+            }
+          }
+        }
+      });
+
+      const resultCountElement = quizElement.closest('.card').querySelector('.correct-answers-count');
+      resultCountElement.textContent = `${correctCount} з ${answers.length}`;
+    });
+
+    document.querySelectorAll('.toggle-results-btn').forEach(button => {
+      button.addEventListener('click', function() {
+        const resultsList = this.closest('.card').querySelector('.results-list');
+        if (resultsList.style.display === 'none' || resultsList.style.display === '') {
+          resultsList.style.display = 'block';
+          this.textContent = 'Сховати результати';
+        } else {
+          resultsList.style.display = 'none';
+          this.textContent = 'Показати результати';
+        }
+      });
+    });
+  });
+</script>
+{% endblock %}

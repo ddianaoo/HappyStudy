@@ -1,0 +1,169 @@
+{% extends 'base.html' %}
+
+{% block title %}
+{{ title }} :: {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 d-flex justify-content-center">
+<div class="col-md-8">
+<div class="card p-4 mb-5 mt-4">
+<h2 class="auth-title">Створення тестування</h2>
+ <form id="testForm" enctype="multipart/form-data">
+            <div class="mb-3">
+                <label for="testName" class="form-label">Назва тестування:</label>
+                <input type="text" id="testName" name="testName" class="form-control" placeholder="Введите название теста" required>
+            </div>
+
+            <div class="mb-3">
+                <label for="subject" class="form-label">Предмет:</label>
+                <select id="subject" name="subject" class="form-select" required>
+                    <option value="">Оберіть предмет</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.pk }}">{{ subject.title }} [{{ subject.school_year }}]</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div id="questionsContainer" class="mb-4">
+            </div>
+
+            <div>
+                <button type="button" id="addQuestionBtn" class="btn btn-success">+ додати питання</button>
+                <button type="submit" class="btn choose-btn">Створити</button>
+            </div>
+
+        </form>
+
+</div>
+</div>
+</div>
+
+<script>
+    const questionsContainer = document.getElementById('questionsContainer');
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+
+    let questionIndex = 0;
+
+    function updateQuestionIndices() {
+        const questionDivs = questionsContainer.querySelectorAll('.question-item');
+        questionDivs.forEach((div, index) => {
+            const questionNumber = index + 1;
+            div.id = `question_${questionNumber}`;
+            div.querySelector('.question-title h5').textContent = `Питання ${questionNumber}`;
+
+            // Update input names
+            const inputs = div.querySelectorAll('input, textarea');
+            inputs.forEach((input) => {
+                const name = input.name.replace(/\d+/, questionNumber);
+                input.name = name;
+            });
+        });
+        questionIndex = questionDivs.length;
+    }
+
+    addQuestionBtn.addEventListener('click', () => {
+        updateQuestionIndices();
+        questionIndex++;
+        const questionDiv = document.createElement('div');
+        questionDiv.classList.add('mb-4', 'border', 'p-3', 'rounded', 'question-item');
+        questionDiv.id = `question_${questionIndex}`;
+        questionDiv.innerHTML = `
+            <div class="d-flex justify-content-between align-items-center question-title">
+                <h5>Питання ${questionIndex}</h5>
+                <button type="button" class="btn btn-danger btn-sm remove-question-btn">видалити</button>
+            </div>
+            <div class="mb-3">
+                <label for="question_${questionIndex}" class="form-label">Текст питання:</label>
+                <input type="text" id="question_${questionIndex}" name="questions[${questionIndex}][name]" class="form-control" placeholder="Введіть текст питання" required>
+            </div>
+            <div class="mb-3">
+                <label for="image_${questionIndex}" class="form-label">Зображення (додатково):</label>
+                <input type="file" id="image_${questionIndex}" name="questions[${questionIndex}][image]" class="form-control">
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Варіанти відповідей:</label>
+                <div>
+                    ${[1, 2, 3].map(i => `
+                        <div class="input-group mb-2">
+                            <div class="input-group-text">
+                                <input type="radio" name="questions[${questionIndex}][correct]" value="${i}" required>
+                            </div>
+                            <input type="text" name="questions[${questionIndex}][answers][${i}]" class="form-control" placeholder="Варіант ${i}" required>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+
+        questionsContainer.appendChild(questionDiv);
+
+        // Add event listener to the "Delete" button
+        questionDiv.querySelector('.remove-question-btn').addEventListener('click', () => {
+            questionsContainer.removeChild(questionDiv);
+            updateQuestionIndices();
+        });
+    });
+
+    document.getElementById('testForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const formData = new FormData(e.target);
+        const data = {
+            testName: formData.get('testName'),
+            subject: formData.get('subject'),
+            questions: []
+        };
+
+        const questionDivs = document.querySelectorAll('.question-item');
+        questionDivs.forEach((div, index) => {
+            const question = {
+                text: div.querySelector(`[name^="questions"]`).value,
+                answers: []
+            };
+
+            const imageInput = div.querySelector(`[name^="questions"][name$="[image]"]`);
+            if (imageInput && imageInput.files.length > 0) {
+                formData.append(`questions[${index}][image]`, imageInput.files[0]);
+            }
+
+            const answers = div.querySelectorAll(`[name^="questions"][name*="[answers]"]`);
+            answers.forEach((answerInput, i) => {
+                question.answers.push({
+                    text: answerInput.value,
+                    is_correct: div.querySelector(`[name^="questions"][value="${i + 1}"]`).checked
+                });
+            });
+
+            data.questions.push(question);
+        });
+
+        formData.append('data', JSON.stringify(data));
+
+        const response = await fetch('', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            window.location.href = '/accounts/quizzes/';
+        } else {
+            const data = await response.json();
+        if (data.error) {
+            const errorForm = new FormData();
+            errorForm.append('message', data.error);
+
+            await fetch('/set-message/', {
+                method: 'POST',
+                body: errorForm,
+                credentials: "same-origin"
+            });
+
+            window.location.reload();
+        }
+        }
+    });
+
+</script>
+
+{% endblock %}

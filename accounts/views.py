@@ -2,7 +2,7 @@ import json
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from .forms import UserLoginForm, UserRegisterForm, UserEditForm
-from happystudy.forms import CreateSubjectForm
+from happystudy.forms import *
 from django.contrib.auth import login, logout
 from django.contrib import messages
 from django.views.generic import ListView
@@ -12,6 +12,7 @@ from .utils import custom_login_required, staff_login_required
 from django.utils.decorators import method_decorator
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
+from django.forms import formset_factory
 
 
 def signup(request):
@@ -108,13 +109,15 @@ def delete_user(request):
     return redirect('signout')
 
 
-
 @method_decorator(staff_login_required, name='dispatch')
 class ListSubjects(ListView):
     context_object_name = 'subjects'
     paginate_by = 10
     model = Subject
     template_name = 'accounts/subject_list.html'
+
+    def get_queryset(self):
+        return Subject.objects.order_by('title') 
 
 
 def create_subject(request):
@@ -169,45 +172,45 @@ def delete_subject(request, id):
 #         return queryset
 
 
-# @staff_login_required
-# def create_quiz(request):
-#     if request.method == 'GET':
-#         return render(request, 'accounts/create_quiz.html')
+@staff_login_required
+def create_quiz(request):
+    if request.method == 'GET':
+        subjects = Subject.objects.all()
+        return render(request, 'accounts/create_quiz.html', {"subjects": subjects})
 
-#     elif request.method == 'POST':
-#         data = json.loads(request.POST['data'])
-#         files = request.FILES
+    elif request.method == 'POST':
+        data = json.loads(request.POST['data'])
+        files = request.FILES
 
-#         try:
-#             quiz = Quiz.objects.create(
-#                 title=data['testName'],
-#                 category=data['category'],
-#                 is_random=data['isRandom']
-#             )
+        try:
+            subject = get_object_or_404(Subject, pk=data['subject'])
+            quiz = Quiz.objects.create(
+                title=data['testName'],
+                subject=subject
+            )
 
-#             for question_index, question_data in enumerate(data['questions']):
-#                 image_key = f'questions[{question_index}][image]'
-#                 image_file = files.get(image_key) if image_key in files else None
+            for question_index, question_data in enumerate(data['questions']):
+                image_key = f'questions[{question_index}][image]'
+                image_file = files.get(image_key) if image_key in files else None
 
-#                 question = Question.objects.create(
-#                     text=question_data['text'],
-#                     explanation=question_data.get('explanation', ''),
-#                     image=image_file
-#                 )
-#                 quiz.quiz_questions.create(question=question)
+                question = Question.objects.create(
+                    title=question_data['text'],
+                    image=image_file,
+                    quiz=quiz
+                )
 
-#                 for answer_data in question_data['answers']:
-#                     Answer.objects.create(
-#                         question=question,
-#                         text=answer_data['text'],
-#                         is_correct=answer_data['is_correct']
-#                     )
-#         except IntegrityError:
-#             return JsonResponse({'error': 'Тест із такою назвою вже існує!'}, status=400)
-#         except Exception as e:
-#             return JsonResponse({'error': 'Сталася помилка під час створення тесту!'}, status=500)
-#         else:
-#             return JsonResponse({'message': 'Тестування створено!'}, status=201)
+                for answer_data in question_data['answers']:
+                    Answer.objects.create(
+                        question=question,
+                        text=answer_data['text'],
+                        is_correct=answer_data['is_correct']
+                    )
+        except IntegrityError:
+            return JsonResponse({'error': 'Тест із такою назвою вже існує!'}, status=400)
+        except Exception as e:
+            return JsonResponse({'error': 'Сталася помилка під час створення тесту!'}, status=500)
+        else:
+            return JsonResponse({'message': 'Тестування створено!'}, status=201)
 
 
 # @staff_login_required
