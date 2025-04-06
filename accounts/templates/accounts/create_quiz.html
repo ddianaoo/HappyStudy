@@ -151,17 +151,13 @@
         } else {
             const res = await response.json();
             if (res.error) {
-                console.error(res.error);
-                const errorForm = new FormData();
-                errorForm.append('message', res.error);
-
-                await fetch('/set-message/', {
-                    method: 'POST',
-                    body: errorForm,
-                    credentials: "same-origin"
-                });
-
-                window.location.reload();
+                let messageDiv = document.getElementById("messages");
+                messageDiv.innerHTML = `
+                    <div style="z-index: 9;" class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+                        <span>${res.error}</span>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
             }
         }
     });

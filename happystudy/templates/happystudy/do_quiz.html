@@ -45,4 +45,39 @@
     </div>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('form');
+        form.addEventListener('submit', (e) => {
+            const questionBlocks = document.querySelectorAll('.card-body');
+            let allAnswered = true;
+
+            questionBlocks.forEach((block) => {
+                const radios = block.querySelectorAll('input[type="radio"]');
+                const questionName = radios.length > 0 ? radios[0].name : null;
+
+                if (questionName && !document.querySelector(`input[name="${questionName}"]:checked`)) {
+                    allAnswered = false;
+                    block.closest('.card').classList.add('border-danger');
+                } else {
+                    block.closest('.card').classList.remove('border-danger');
+                }
+            });
+
+            if (!allAnswered) {
+                e.preventDefault();
+                let messageDiv = document.getElementById("messages");
+
+                    messageDiv.innerHTML = `
+                        <div style="z-index: 9;" class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+                            <span>Будь ласка, дайте відповідь на всі питання перед завершенням тесту.</span>
+                            <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    `;
+                
+            }
+        });
+    });
+</script>
+
 {% endblock %}

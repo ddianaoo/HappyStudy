@@ -13,7 +13,7 @@ urlpatterns = [
 
     path('quizzes/', QuizList.as_view(), name='quiz_list'),
     path('create-quiz/', create_quiz, name='create_quiz'),
-    # path('edit-quiz/<int:quiz_id>/', edit_quiz, name='edit_quiz'),
+    path('edit-quiz/<int:quiz_id>/', edit_quiz, name='edit_quiz'),
     path('delete-quiz/<int:quiz_id>/', delete_quiz, name='delete_quiz'),
 
 

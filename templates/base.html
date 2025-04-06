@@ -17,7 +17,7 @@
 
     {% include 'includes/_navbar.html' %}
 
-
+    <div id="messages">
     {% if messages %}
     {% for message in messages %}
         {% if message.tags == 'error' %}
@@ -33,6 +33,7 @@
         {% endif %}
     {% endfor %}
     {% endif %}
+    </div>
 
     <div class="background">
         <div class="third-line"></div>

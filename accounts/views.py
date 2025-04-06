@@ -18,7 +18,6 @@ def signup(request):
     if request.method == 'POST':
         form = UserRegisterForm(request.POST)
         if form.is_valid():
-            # registration only
             form.save()
             messages.success(request, 'Реєстрація успішно завершена.')
             return redirect('signin')
@@ -173,50 +172,6 @@ class QuizList(ListView):
         return queryset
 
 
-# @staff_login_required
-# def create_quiz(request):
-#     if request.method == 'GET':
-#         subjects = Subject.objects.all()
-#         return render(request, 'accounts/create_quiz.html', {"subjects": subjects})
-
-#     elif request.method == 'POST':
-#         data = json.loads(request.POST['data'])
-#         files = request.FILES
-
-#         if not data['questions']:
-#             return JsonResponse({'error': 'У теста має бути хоча б одне питання!'}, status=400)
-
-#         try:
-#             subject = get_object_or_404(Subject, pk=data['subject'])
-#             quiz = Quiz.objects.create(
-#                 title=data['testName'],
-#                 subject=subject
-#             )
-
-#             for question_index, question_data in enumerate(data['questions']):
-#                 image_key = f'questions[{question_index}][image]'
-#                 image_file = files.get(image_key) if image_key in files else None
-
-#                 question = Question.objects.create(
-#                     title=question_data['text'],
-#                     image=image_file,
-#                     quiz=quiz
-#                 )
-
-#                 for answer_data in question_data['answers']:
-#                     Answer.objects.create(
-#                         question=question,
-#                         text=answer_data['text'],
-#                         is_correct=answer_data['is_correct']
-#                     )
-#         except IntegrityError:
-#             return JsonResponse({'error': 'Тест із такою назвою вже існує!'}, status=400)
-#         except Exception as e:
-#             return JsonResponse({'error': 'Сталася помилка під час створення тесту!'}, status=500)
-#         else:
-#             return JsonResponse({'message': 'Тестування створено!'}, status=201)
-
-
 @staff_login_required
 def create_quiz(request):
     if request.method == 'GET':
@@ -238,7 +193,6 @@ def create_quiz(request):
             )
 
             for i, question_data in enumerate(data['questions']):
-                # ⚠️ ВАЖНО: получаем индекс так, как он есть в полях formData
                 image_key = f'questions[{i}][image]'
                 image_file = files.get(image_key)
 
@@ -259,63 +213,61 @@ def create_quiz(request):
             return JsonResponse({'error': 'Тест із такою назвою вже існує!'}, status=400)
 
         except Exception as e:
-            print(e)  # можно логировать
             return JsonResponse({'error': 'Сталася помилка під час створення тесту!'}, status=500)
 
         else:
             return JsonResponse({'message': 'Тестування створено!'}, status=201)
 
 
-# @staff_login_required
-# def edit_quiz(request, quiz_id):
-#     quiz = get_object_or_404(Quiz, id=quiz_id)
+@staff_login_required
+def edit_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+    subjects = Subject.objects.all()
 
-#     if request.method == 'GET':
-#         questions = [quiz_question.question for quiz_question in quiz.quiz_questions.all()]
-#         all_questions = Question.objects.exclude(id__in=[question.id for question in questions])
-#         print(questions)
-#         return render(request, 'accounts/edit_quiz.html', {
-#             'quiz': quiz,
-#             'questions': questions,
-#             'all_questions': all_questions,
-#             'CATEGORY_CHOICES': CATEGORY_CHOICES,
-#         })
-    
-#     elif request.method == 'POST':
-#         data = json.loads(request.POST['data'])
-#         files = request.FILES
-#         quiz.title = data['testName']
-#         quiz.category = data['category']
-#         quiz.is_random = data['isRandom']
-#         quiz.save()
+    if request.method == 'GET':
+        return render(request, 'accounts/edit_quiz.html', {
+            'quiz': quiz,
+            'subjects': subjects
+        })
 
-#         quiz.quiz_questions.all().delete()
+    elif request.method == 'POST':
+        data = json.loads(request.POST['data'])
+        files = request.FILES
 
-#         for question_index, question_data in enumerate(data['questions']):
-#             question_id = question_data['id']
-#             question = Question.objects.get(pk=question_id)
-#             question.text = question_data['text']
-#             question.explanation = question_data.get('explanation', '')
+        if not data['questions']:
+            return JsonResponse({'error': 'У теста має бути хоча б одне питання!'}, status=400)
 
-#             image_key = f'questions[{question_index + 1}][image]'
-#             if image_key in files:
-#                 image_file = files.get(image_key)
-#                 if image_file:
-#                     question.image = image_file
-#             elif f'questions[{question_index + 1}][image_removed]' in request.POST:
-#                 question.image = None
+        f_quiz = Quiz.objects.filter(title=data['title']).first()
+        if f_quiz and f_quiz.pk != quiz.pk:
+            return JsonResponse({'error': 'Тест із такою назвою вже існує!'}, status=400)
 
-#             question.save()
+        quiz.title = data['title']
+        subject = get_object_or_404(Subject, pk=data['subject'])
+        quiz.subject = subject
+        quiz.save()
 
-#             quiz.quiz_questions.create(question=question)
+        for question_index, question_data in enumerate(data['questions']):
+            question_id = question_data['id']
+            question = Question.objects.get(pk=question_id)
+            question.title = question_data['title']
 
-#             for answer_data in question_data['answers']:
-#                 answer_obj = Answer.objects.get(id=answer_data['id'])
-#                 answer_obj.text = answer_data['text']
-#                 answer_obj.is_correct = answer_data['is_correct']
-#                 answer_obj.save()
+            image_key = f'questions[{question_index + 1}][image]'
+            if image_key in files:
+                image_file = files.get(image_key)
+                if image_file:
+                    question.image = image_file
+            elif f'questions[{question_index + 1}][image_removed]' in request.POST:
+                question.image = None
 
-#         return JsonResponse({'message': 'Тест успішно оновлено!'}, status=201)
+            question.save()
+
+            for answer_data in question_data['answers']:
+                answer_obj = Answer.objects.get(id=answer_data['id'])
+                answer_obj.text = answer_data['text']
+                answer_obj.is_correct = answer_data['is_correct']
+                answer_obj.save()
+
+        return JsonResponse({'message': 'Тест успішно оновлено!'}, status=201)
 
 
 @staff_login_required

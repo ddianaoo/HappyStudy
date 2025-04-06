@@ -77,15 +77,6 @@ def submit_quiz(request, quiz_id):
     return redirect('get_history_quizzes_results', request.user.pk, "all")
 
 
-def set_message(request):
-    if request.method == 'POST':
-        message = request.POST.get('message', '')
-        print(message)
-        if message:
-            messages.error(request, message)
-        return JsonResponse({'status': 'success'})
-
-
 @login_required
 def get_history_quizzes_results(request, pk, filter):
     user = get_object_or_404(CustomUser, pk=pk)

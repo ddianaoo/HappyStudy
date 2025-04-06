@@ -42,13 +42,19 @@
                         <li><a class="dropdown-item" href="{% url 'create_subject' %}">Додати новий</a></li>
                         <li><a class="dropdown-item" href="{% url 'subject_list' %}">Список предметів</a></li>
                     </ul>
-                    </li>
+                </li>
 
-                    <li class="nav-item">
-                        <a class="nav-link profile"
-                           href="{% url 'user_list' %}">Користувачі
-                        </a>
-                    </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle profile" href="#" id="navbarDropdown5" role="button"
+                       data-bs-toggle="dropdown" aria-expanded="false">
+                       Користувачі
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                        <li><a class="dropdown-item" href="{% url 'add_assistant' %}">Додати робітника</a></li>
+                        <li><a class="dropdown-item" href="{% url 'user_list' %}">Список користувачів</a></li>
+                    </ul>
+                </li>
+                    
                 {% else %}
                 <li class="nav-item">
                     <a class="nav-link profile"

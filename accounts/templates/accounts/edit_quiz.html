@@ -1,0 +1,208 @@
+{% extends 'base.html' %}
+
+{% block title %}
+Редагування тесту :: {{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4 d-flex justify-content-center">
+    <div class="col-md-8">
+        <div class="card p-4 mb-5 mt-4">
+            <h2 class="auth-title">Редагування тестування</h2>
+            <form id="testForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Назва:</label>
+                    <input type="text" id="title" name="title" class="form-control" value="{{ quiz.title }}" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="subject" class="form-label">Предмет:</label>
+                    <select id="subject" name="subject" class="form-select" required>
+                        <option value="">Оберіть предмет</option>
+                        {% for subject in subjects %}
+                        <option value="{{ subject.pk }}"
+                        {% if subject == quiz.subject %}selected{% endif %}
+                        >{{ subject.title }} [{{ subject.school_year }}]</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div id="questionsContainer" class="mb-4">
+                    {% for question in quiz.questions.all %}
+                        <div class="question-item mb-4 border p-3 rounded" data-id="{{ question.id }}" id="question_{{ forloop.counter }}">
+                            <input type="hidden" name="questions[{{ forloop.counter }}][id]" value="{{ question.id }}">
+                            <div class="d-flex justify-content-between align-items-center question-title">
+                                <h5>Питання {{ forloop.counter }}</h5>
+                            </div>
+                            <div class="mb-3">
+                                <label for="question_{{ forloop.counter }}" class="form-label">Текст питання:</label>
+                                <input type="text" name="questions[{{ forloop.counter }}][text]" class="form-control" value="{{ question.title }}" required>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="image_{{ forloop.counter }}" class="form-label">Зображення (додатково):</label>
+                                <div id="imageContainer_{{ forloop.counter }}">
+                                    {% if question.image %}
+                                        <div id="imagePreviewContainer_{{ forloop.counter }}">
+                                            <div class="mb-2">
+                                                <img id="imagePreview_{{ forloop.counter }}" src="{{ question.image.url }}" alt="Зображення" style="max-width: 50%; height: auto;">
+                                            </div>
+                                            <div class="mt-2 mb-2">
+                                                <button type="button" style="color: red;" class="btn" 
+                                                id="deleteImageBtn_{{ forloop.counter }}">
+                                                <i class="bi bi-trash3"></i> Видалити зображення
+                                            </button>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+                                    <input type="file" id="image_{{ forloop.counter }}" name="questions[{{ forloop.counter }}][image]" class="form-control">
+                                </div>
+                                
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label">Варіанти відповідей:</label>
+                                <div>
+                                    {% for answer in question.answers.all %}
+                                        <div class="input-group mb-2">
+                                            <div class="input-group-text">
+                                                <input type="radio" name="questions[{{ forloop.parentloop.counter }}][correct]" value="{{ forloop.counter }}" {% if answer.is_correct %}checked{% endif %}>
+                                            </div>
+                                            <input data-id="{{ answer.id }}" type="text" name="questions[{{ forloop.parentloop.counter }}][answers][{{ forloop.counter }}]" class="form-control" value="{{ answer.text }}" required>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="auth-btn mt-0">Оновити тест</button>
+
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    const questionsContainer = document.getElementById('questionsContainer');
+    const addQuestionBtn = document.getElementById('addQuestionBtn');
+
+    document.getElementById('testForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const data = {
+            title: formData.get('title'),
+            subject: formData.get('subject'),
+            questions: []
+        };
+
+        const questionDivs = document.querySelectorAll('.question-item');
+        questionDivs.forEach((div, index) => {
+            const question = {
+                id: div.querySelector('input[name^="questions"][name$="[id]"]').value,
+                title: div.querySelector(`[name^="questions"][name$="[text]"]`).value,
+                answers: []
+            };
+
+            const imageInput = div.querySelector(`[name^="questions"][name$="[image]"]`);
+            if (imageInput) {
+                if (imageInput.files.length == 0) {
+                    let imagePrev = document.getElementById(`imagePreviewContainer_${index + 1}`);
+                    if (imagePrev) {
+                    } else {
+                        formData.append(`questions[${index + 1}][image_removed]`, 'true');
+                    }
+                }
+            }
+
+            const answers = div.querySelectorAll(`[name^="questions"][name*="[answers]"]`);
+            answers.forEach((answerInput, i) => {
+                const answerId = answerInput.getAttribute('data-id');
+                question.answers.push({
+                    id: answerId,
+                    text: answerInput.value,
+                    is_correct: div.querySelector(`[name^="questions"][value="${i + 1}"]`).checked
+                });
+            });
+
+            data.questions.push(question);
+        });
+
+        formData.append('data', JSON.stringify(data));
+
+        const response = await fetch('', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            window.location.href = '/accounts/quizzes/';
+        } else {
+            const res = await response.json();
+            if (res.error) {
+                let messageDiv = document.getElementById("messages");
+                messageDiv.innerHTML = `
+                    <div style="z-index: 9;" class="alert alert-danger d-flex justify-content-between align-items-center" role="alert">
+                        <span>${res.error}</span>
+                        <button type="button" class="btn-close ms-auto" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                `;
+            }
+        }
+    });
+
+
+    document.querySelectorAll('[id^="image_"]').forEach((input) => {
+        input.addEventListener('change', (e) => {
+            const questionIndex = e.target.id.split('_')[1];
+            const file = e.target.files[0];
+            
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (event) {
+                    const oldImagePreview = document.getElementById(`imagePreviewContainer_${questionIndex}`);
+                    if (oldImagePreview) {
+                        oldImagePreview.remove();
+                    }
+
+                    const newImagePreviewContainer = document.createElement('div');
+                    newImagePreviewContainer.id = `imagePreviewContainer_${questionIndex}`;
+                    newImagePreviewContainer.classList.add('mb-2');
+                    newImagePreviewContainer.innerHTML = `
+                        <div>
+                            <img id="imagePreview_${questionIndex}" src="${event.target.result}" alt="Зображення" style="max-width: 50%; height: auto;">
+                        </div>
+                        <div class="mb-2">
+                            <button type="button" class="btn" style="color: red" id="deleteImageBtn_${questionIndex}"><i class="bi bi-trash3"></i> Видалити зображення</button>
+                        </div>
+                    `;
+
+                    const imageContainer = document.getElementById(`imageContainer_${questionIndex}`);
+                    imageContainer.insertBefore(newImagePreviewContainer, imageContainer.querySelector('input[type="file"]'));
+
+                    document.getElementById(`deleteImageBtn_${questionIndex}`).addEventListener('click', () => {
+                        document.getElementById(`imagePreviewContainer_${questionIndex}`).remove();
+                        const fileInput = document.getElementById(`image_${questionIndex}`);
+                        fileInput.value = ''; 
+                    });
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    });
+
+
+    document.querySelectorAll('[id^="deleteImageBtn_"]').forEach((button) => {
+        button.addEventListener('click', (e) => {
+            const buttonId = e.target.id.split('_')[1];
+            console.log("delete prev image", buttonId);
+            document.getElementById(`imagePreviewContainer_${buttonId}`).remove();
+            const fileInput = document.querySelector(`[name="questions[${buttonId}][image]"]`);
+            fileInput.value = '';
+        });
+    });
+</script>
+
+
+{% endblock %}

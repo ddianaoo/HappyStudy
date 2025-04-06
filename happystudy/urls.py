@@ -8,6 +8,5 @@ urlpatterns = [
     path('subjects/<int:pk>/', get_subject, name='get_subject'),
     path('quizzes/<int:pk>/', get_quiz, name='get_quiz'),
     path('quizzes/<int:quiz_id>/submit/', submit_quiz, name='submit_quiz'),
-    path('get-history-quizzes-results/<int:pk>/<str:filter>/', get_history_quizzes_results, name='get_history_quizzes_results'),
-    path('set-message/', set_message, name='set_message')
+    path('get-history-quizzes-results/<int:pk>/<str:filter>/', get_history_quizzes_results, name='get_history_quizzes_results')
 ]
