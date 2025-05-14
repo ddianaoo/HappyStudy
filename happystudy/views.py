@@ -10,11 +10,11 @@ from django.utils import timezone
 
 def home_page(request):
     english_subject = Subject.objects.get(title="Англійська мова", school_year="5 клас")
-    math_subject = Subject.objects.get(title="Математика", school_year="5 клас")
+    math_subject = Subject.objects.get(title="Українська мова", school_year="5 клас")
     if request.user.is_authenticated and request.user.is_staff == False:
         year = request.user.school_year
         english_subject = Subject.objects.get(title="Англійська мова", school_year=year)
-        math_subject = Subject.objects.get(title="Математика", school_year=year)
+        math_subject = Subject.objects.get(title="Українська мова", school_year=year)
 
     users = CustomUser.objects.filter(is_staff=False).count()
     quizzes_count = Quiz.objects.all().count()
